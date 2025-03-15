@@ -1,32 +1,32 @@
-import { supabase } from "../Supabase/clients"; // Verify this path is correct
+import { supabase } from "../Supabase/clients";
 import { useState, useEffect } from "react";
+
+import SmoothieCard from "../components/SmoothieCard";
 
 const Home = () => {
   const [fetchError, setFetchError] = useState(null);
   const [smoothies, setSmoothies] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchSmoothies = async () => {
       try {
+        setIsLoading(true);
         const { data, error } = await supabase
-          .from('supa_smoothies') // Ensure this matches your exact table name in Supabase
-          .select('*'); // Explicitly specify columns or use '*'
+          .from('Supasmooth')
+          .select();
 
-        if (error) {
-          setFetchError("Could not fetch the smoothies");
-          setSmoothies(null);
-          console.error("Supabase error:", error.message);
-          return;
-        }
-
-        if (data) {
-          setSmoothies(data);
-          setFetchError(null);
-          console.log("Fetched data:", data); // For debugging
-        }
-      } catch (err) {
-        setFetchError("An unexpected error occurred");
-        console.error("Unexpected error:", err);
+        if (error) throw error;
+        
+        console.log('Fetched data:', data);
+        setSmoothies(data);
+        setFetchError(null);
+      } catch (error) {
+        console.error('Fetch error:', error);
+        setFetchError("Could not fetch the smoothies");
+        setSmoothies(null);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -35,17 +35,18 @@ const Home = () => {
 
   return (
     <div className="page home">
+      {isLoading && <p>Loading...</p>}
       {fetchError && <p>{fetchError}</p>}
-      {smoothies ? (
+      {smoothies && (
         <div className="smoothies">
-          {smoothies.map((smoothie) => (
-            <p key={smoothie.id}>{smoothie.title}</p> // Added key prop
-          ))}
+          {/*order-by-buttons */}
+          <div className="smoothie-grid">
+            {smoothies.map(smoothie => (
+              <SmoothieCard key={smoothie.id} smoothie={smoothie}/>
+            ))}
+          </div>
         </div>
-      ) : (
-        !fetchError && <p>Loading...</p> // Optional loading state
       )}
-      <h2>Home</h2>
     </div>
   );
 };
