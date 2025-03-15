@@ -1,6 +1,6 @@
 import { supabase } from "../Supabase/clients";
 import { useState, useEffect } from "react";
-
+import '../index.css';
 import SmoothieCard from "../components/SmoothieCard";
 
 const Home = () => {
@@ -14,7 +14,7 @@ const Home = () => {
         setIsLoading(true);
         const { data, error } = await supabase
           .from('Supasmooth')
-          .select();
+          .select('*');
 
         if (error) throw error;
         
